@@ -3,10 +3,7 @@ package com.etnetera.hr.service;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections4.IteratorUtils;
 import org.slf4j.Logger;
@@ -28,13 +25,45 @@ public class JavaScriptFrameworkService implements IJavaScriptFrameworkService {
     public JavaScriptFrameworkService(JavaScriptFrameworkRepository repository) {
         this.repository = repository;
     }
+    
+    // ----------------------------------------------------------------------
 
 	@Override
-	public @NotNull Collection<JavaScriptFramework> getAllFrameworks() {
-		log.debug("Finding all known frameworks");
-		List<JavaScriptFramework> results = IteratorUtils.toList(repository.findAll().iterator());
+	public Collection<JavaScriptFramework> getFrameworks(String name) {
+		List<JavaScriptFramework> results = new ArrayList<JavaScriptFramework>();
+		log.debug(MessageFormat.format("Searching for frameworks, filters: {0}", (name == null ? "-" : "'" + name + "'")));
+		if(name != null) {
+			results.addAll(repository.findByName(name));
+		} else {
+			results.addAll(IteratorUtils.toList(repository.findAll().iterator()));
+		}
 		log.debug(MessageFormat.format("Found {0} results.", results.size()));
 		return results;
+	}
+
+	@Override
+	public JavaScriptFramework saveFramework(JavaScriptFramework framework) {
+		log.debug("Saving new framework: " + framework.toString());
+		return repository.save(framework);
+	}
+	
+	@Override
+	public JavaScriptFramework updateFramework(JavaScriptFramework framework) {
+		if(framework.getId() == null) {
+			throw new IllegalArgumentException("Mandatory field 'id' for update of Framework entry is not set.");
+		}
+		log.debug(MessageFormat.format("Updating framework with id={0}", framework.getId())); 
+		return repository.save(framework);
+	}
+
+	@Override
+	public void deleteFramework(long id) {
+		if(repository.existsById(id)) {
+			log.debug(MessageFormat.format("Deleting framework with id={0}", id));
+			repository.deleteById(id);
+		} else {
+			log.debug(MessageFormat.format("Framework with id={0} does not exist, nothing for deletion.", id));
+		}
 	}
     
 }

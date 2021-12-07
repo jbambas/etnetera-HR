@@ -1,5 +1,7 @@
 package com.etnetera.hr.repository;
 
+import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
 
 import com.etnetera.hr.data.JavaScriptFramework;
@@ -12,4 +14,6 @@ import com.etnetera.hr.data.JavaScriptFramework;
  */
 public interface JavaScriptFrameworkRepository extends CrudRepository<JavaScriptFramework, Long> {
 
+	List<JavaScriptFramework> findByName(String name);
+	
 }
